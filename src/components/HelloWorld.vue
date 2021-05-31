@@ -4,6 +4,14 @@
     <div>stack : {{ Math.max(0, count - sent) }}</div>
     <button ref="button">click Me!</button>
     <div class="animation absolute left-0 bottom-0">
+      <transition
+        enter-active-class="animated fast slideInLeft"
+        leave-active-class="animated fast slideOutLeft"
+      >
+        <p class="absolute left-0 top-0" v-if="showGiftSlide">
+          send gifts {{ sent }}
+        </p>
+      </transition>
       <div>{{ count }}</div>
       <div class="bar" :style="{ height: `${count * 3}px` }"></div>
     </div>
@@ -34,6 +42,7 @@ export default {
 
   data() {
     return {
+      showGiftSlide: false,
       sent: 0,
       count: 0,
       MAX_COUNT: config.COMBO_TIME / config.UPDATE_TIME,
@@ -60,7 +69,11 @@ export default {
             takeUntil(recycle),
             mapTo(1)
           )
-          .pipe(tap((v) => (this.count += v)))
+          .pipe(
+            tap((v) => {
+              this.count += v;
+            })
+          )
       )
     );
 
@@ -91,7 +104,9 @@ export default {
 
   methods: {
     send() {
+      this.showGiftSlide = false;
       this.sent = Math.max(0, this.count - this.sent);
+      this.$nextTick(() => (this.showGiftSlide = true));
     },
     reset() {
       this.sent = 0;
